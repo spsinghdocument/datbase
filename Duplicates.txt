@@ -1,0 +1,5 @@
+  SELECT lastname, 
+ COUNT(lastname) AS NumOccurrences
+FROM sp
+GROUP BY lastname
+HAVING ( COUNT(lastname) >1 )

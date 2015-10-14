@@ -1,0 +1,14 @@
+create table sp
+(
+id int identity(1,1)primary key,
+name varchar(max)
+
+)
+.............start............
+set IDENTITY_INSERT sp off
+....................................................id  in(may) insert.............
+
+
+set IDENTITY_INSERT sp on
+...............................................................................................start sa incrise id......................
+dbcc checkident(sp,reseed,0)

@@ -1,0 +1,6 @@
+@"ALTER TABLE Table1 
+ADD email Text(50)"
+
+
+@"ALTER TABLE Table1 
+DROP COLUMN email";

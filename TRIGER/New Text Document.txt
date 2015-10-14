@@ -1,0 +1,45 @@
+................................................NO INSERT..................
+alter TRIGGER reminder1
+ON sp
+instead of INSERT, UPDATE
+AS
+ RAISERROR ('Notify Customer Relations', 16, 10);
+
+.....................................................................NO "Saurabh" INSERT...............
+
+alter TRIGGER reminder1
+ON sp
+
+after INSERT 
+as 
+declare @d varchar(50);
+select @d = name from inserted;
+if @d='SAURABH'
+begin
+RAISERROR ('Notify Customer Relations', 16, 10);
+end
+.................................................................insert two table........................
+create TRIGGER saurabh
+on sp
+AFTER INSERT
+AS
+begin
+declare @id int , @name varchar(50) ,@lstname varchar(50) ,@mark int , @attendence varchar(50) 
+seLECT @id=id FROM INSERTED
+seLECT @name=name from inserted
+seLECT @lstname=lastname from inserted
+seLECT @mark=mark from inserted
+seLECT @attendence=attendanse from inserted
+insert into Table1 Values(@id,@name,@lstname,@mark,@attendence)
+end
+........................................................................................drop.....................
+
+DROP TRIGGER SAURABH
+
+
+
+
+
+
+
+

@@ -1,0 +1,28 @@
+USE [inventory_MVC]
+GO
+/****** Object:  StoredProcedure [dbo].[Voucherautobillno_proc]    Script Date: 12/29/2014 13:41:19 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+    ALTER proc [dbo].[Voucherautobillno_proc]
+@branchcode varchar(200)='',
+@formname varchar(200) = '',
+@usercode varchar(200) = '',
+@Msg varchar(200) output
+as
+begin
+declare @d_t varchar (200) 
+declare  @d_current varchar (10) 
+declare  @autonum varchar(200)
+select  @d_current = CONVERT (date, GETDATE()) 
+select @d_t = count(voucherid)+1 from Voucheroutcounter where branchcode =@branchcode and v_date = @d_current
+
+declare @realval varchar(100)
+set @realval =  REPLACE(@d_current,'-','');
+
+SELECT @autonum = RIGHT(ISNULL('SV',0) + CAST(ISNULL(@realval,0) +'-'+  ISNULL(@d_t,0) AS VARCHAR(15)), 15 ) FROM vouchertable
+set @Msg =  @autonum
+end
+
+

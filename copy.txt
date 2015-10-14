@@ -1,0 +1,14 @@
+ALL table copy
+
+cmd.CommandText = @"SELECT *
+INTO  newtable2
+FROM Table1";
+
+EMPTY table copy
+
+       cmd.CommandText = @"SELECT *
+INTO newtable1
+FROM Table1
+WHERE 1=0";
+......................................................................other database name........
+select * into mayank.dbo.asp  from arvind.dbo.sp where 1=1

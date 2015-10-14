@@ -1,0 +1,12 @@
+   OleDbConnection mycon = new OleDbConnection("Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\\Users\\spsingh\\Desktop\\New folder (5)\\Database1.mdb");
+
+        OleDbCommand cmd = new OleDbCommand();
+        mycon.Open();
+        cmd.CommandText = @"CREATE TABLE t2
+(
+id Text(50),
+username Text(50),
+passward Text(50))";
+        cmd.Connection = mycon;
+        cmd.ExecuteNonQuery();
+        mycon.Close();

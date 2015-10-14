@@ -1,0 +1,21 @@
+
+            SqlConnection mycon = new SqlConnection("Data Source=SPSINGH;Initial Catalog=arvind;Integrated Security=True"); 
+
+            mycon.Open();
+
+            SqlCommand command = new SqlCommand("SELECT * FROM sp", mycon);
+            SqlDataAdapter da = new SqlDataAdapter(command);
+            DataSet ds = new DataSet();
+         
+            
+            da.Fill(ds,"tab1");
+
+            SqlCommand command1 = new SqlCommand("SELECT * FROM gala", mycon);
+            SqlDataAdapter da1 = new SqlDataAdapter(command1);
+           
+           
+            da1.Fill(ds, "tab2");
+
+            dataGridView1.DataSource = ds.Tables["tab1"];
+            dataGridView2.DataSource = ds.Tables["tab2"];
+ mycon.Close();

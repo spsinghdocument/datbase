@@ -1,0 +1,4 @@
+id   int
+image   nvarchar(50)
+
+productname nvarchar(50)

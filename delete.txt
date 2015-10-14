@@ -1,0 +1,9 @@
+21:56 13/08/2013dele table colom
+
+ cmd.CommandText = @"DELETE FROM Table1 WHERE FIRSTNAME='dff'";
+
+
+
+all data delete
+
+ cmd.CommandText = @"DELETE FROM Table1";

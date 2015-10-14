@@ -1,0 +1,26 @@
+create PROc dis
+(
+@id int='',
+@name varchar(max)='',
+@lastname varchar(50)='',
+@msg varchar(max)out
+)
+as begin
+insert into display values (@id,@name,@lastname)
+set @msg ='Registered Successfully'
+end
+..............................................
+ SqlCommand cmd = new SqlCommand("dis", con);
+            cmd.CommandType = CommandType.StoredProcedure;
+    
+            cmd.Parameters.AddWithValue("@id", TextBox1.Text);
+            cmd.Parameters.AddWithValue("@name", TextBox2.Text);
+            cmd.Parameters.AddWithValue("@lastname", TextBox3.Text);
+
+            cmd.Parameters.Add("@msg", SqlDbType.Char, 500);
+            cmd.Parameters["@msg"].Direction = ParameterDirection.Output;
+            cmd.ExecuteNonQuery();
+           // Label1.Text = (string)cmd.Parameters["@msg"].Value;
+            Label1.Text = cmd.Parameters["@msg"].Value.ToString();
+         
+            con.Close();

@@ -1,0 +1,80 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Data.SqlClient;
+using System.Data;
+
+public partial class _Default : System.Web.UI.Page
+{
+    static int a = 1;
+    protected void Page_Load(object sender, EventArgs e)
+    {
+
+    }
+    protected void Button1_Click(object sender, EventArgs e)
+    {
+        if (FileUpload1.PostedFile != null && FileUpload1.PostedFile.FileName != "")
+        {
+
+           
+            int b;
+            b = int.Parse(TextBox2.Text);
+           // float c;
+            //c = float.Parse(TextBox3.Text);
+            //int m = 1;
+            int m = 1;
+
+            byte[] myimage = new byte[FileUpload1.PostedFile.ContentLength];
+            HttpPostedFile Image = FileUpload1.PostedFile;
+            Image.InputStream.Read(myimage, 0, (int)FileUpload1.PostedFile.ContentLength);
+
+            SqlConnection myConnection = new SqlConnection("Data Source=.\\SQLEXPRESS;AttachDbFilename=|DataDirectory|\\Database.mdf;Integrated Security=True;User Instance=True");
+
+
+            SqlCommand cmd = new SqlCommand("select img_id from sp", myConnection);
+            myConnection.Open();
+            SqlDataAdapter da = new SqlDataAdapter(cmd);
+            DataSet dt = new DataSet();
+            da.Fill(dt);
+            if (dt.Tables[0].Rows.Count > 0)
+            {
+                for (int i = 0; i < dt.Tables[0].Rows.Count; i++)
+                {
+                    a = int.Parse(dt.Tables[0].Rows[i][0].ToString());
+                }
+                m = ++a;
+            }
+
+
+
+            SqlCommand storeimage = new SqlCommand("INSERT INTO sp(firstname,image,mobileno,image_type,image_size,img_id) values ('" + TextBox1.Text + "',@Image," + b + ",@imagetype,@imagesize," + m + ")", myConnection);
+            storeimage.Parameters.Add("@Image", SqlDbType.Image, myimage.Length).Value = myimage;
+            storeimage.Parameters.Add("@imagetype", SqlDbType.VarChar, 100).Value = FileUpload1.PostedFile.ContentType;
+            storeimage.Parameters.Add("@imagesize", SqlDbType.BigInt, 99999).Value = FileUpload1.PostedFile.ContentLength;
+
+            // myConnection.Open();
+            storeimage.ExecuteNonQuery();
+            myConnection.Close();
+            TextBox1.Text = "";
+            TextBox2.Text = "";
+        }
+    }
+    protected void GridView1_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        GridView1.DataSource = FetchAllImagesInfo();
+        GridView1.DataBind();
+        GridView1.Visible = true;
+    }
+
+    public DataTable FetchAllImagesInfo()
+    {
+        string sql = "Select * from sp";
+        SqlDataAdapter da = new SqlDataAdapter(sql, "Data Source=.\\SQLEXPRESS;AttachDbFilename=|DataDirectory|\\Database.mdf;Integrated Security=True;User Instance=True");
+        DataTable dt = new DataTable();
+        da.Fill(dt);
+        return dt;
+    }
+}

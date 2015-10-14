@@ -1,0 +1,18 @@
+SqlConnection con = new SqlConnection("Data Source=SPSINGH;Initial Catalog=arvind;Integrated Security=True");
+        con.Open();
+
+
+        SqlCommand cmd = new SqlCommand(" SELECT * FROM sp where id =1", con);
+        SqlDataAdapter da = new SqlDataAdapter(cmd);
+        DataSet ds = new DataSet();
+        da.Fill(ds);
+        if (ds.Tables[0].Rows.Count >= 1)
+        {
+            DataRow dr = ds.Tables[0].Rows[0];
+            Label1.Text = dr[0].ToString();
+            Label2.Text = dr[1].ToString();
+            Label3.Text = dr[2].ToString();
+            Label4.Text = dr[3].ToString();
+            Label5.Text = dr[4].ToString();
+
+        }

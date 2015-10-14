@@ -1,0 +1,929 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using System.Data.SqlClient;
+using System.Data.OleDb;
+using System.Xml;
+using System.Collections;
+using Microsoft.Office.Interop.Excel;
+
+ 
+
+
+namespace Excel_Win
+{
+    public partial class Form1 : Form
+    {
+
+        SqlConnection con = new SqlConnection("data source=103.21.58.192;initial catalog=inventory_MVC; user id=sgmayank;password=F@$tf0warD;");
+
+        
+        public Form1()
+        {
+            InitializeComponent();
+            excelfileDElett();
+            
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            deletdata();
+
+            excelfile();
+
+
+        }
+
+       
+
+        public void excelfile(string fname = "")
+        {
+            try
+            {
+                DataSet ds = new DataSet();
+                OpenFileDialog op = new OpenFileDialog();
+                op.Filter = "Excel Sheet(*.xlsx)|*.xlsx|All Files(*.*)|*.*";
+                string file_name = "";
+                if (op.ShowDialog() == DialogResult.OK)
+                {
+                    file_name = op.FileName;
+                }
+                else
+                {
+                    MessageBox.Show("Plz. selecet Excel file");
+                    return;
+                }
+
+                string excelConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + file_name + ";Extended Properties=\"Excel 12.0;HDR=Yes;IMEX=2\"";
+
+                using (OleDbConnection excelConnection = new OleDbConnection(excelConnectionString))
+                {
+
+                    excelConnection.Open();
+                    System.Data.DataTable dt = new System.Data.DataTable();
+
+                    dt = excelConnection.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
+                    if (dt == null)
+                    {
+                        return;
+                    }
+
+                    String[] excelSheets = new String[dt.Rows.Count];
+                    int t = 0;
+                    //excel data saves in temp file here.
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        excelSheets[t] = row["TABLE_NAME"].ToString();
+                        t++;
+                    }
+                    OleDbConnection excelConnection1 = new OleDbConnection(excelConnectionString);
+
+
+                //  string query = string.Format("Select NUMBER ,TYPE ,DURATION ,UNITS,RATE  AS RATE , COST   from [{0}] ", excelSheets[0]);
+                    string query = string.Format("Select *   from [{0}] ", excelSheets[0]);
+                    using (OleDbDataAdapter dataAdapter = new OleDbDataAdapter(query, excelConnection1))
+                    {
+                        dataAdapter.Fill(ds);
+                    }
+                }
+                System.Data.DataTable table = new System.Data.DataTable();
+                table = ds.Tables[0];
+                ////using (var con = new SqlConnection("data source=103.21.58.192;initial catalog=inventory_MVC; user id=sgmayank;password=F@$tf0warD;")) 
+                for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+                {
+                    //  string conn = ConfigurationManager.ConnectionStrings["SqlCon"].ConnectionString;
+                    SqlConnection con = new SqlConnection("data source=103.21.58.192;initial catalog=inventory_MVC; user id=sgmayank;password=F@$tf0warD;");
+                    string query = "";
+                    if (ds.Tables[0].Columns.Count == 7)
+                    {
+
+                         query = "  Insert into spExe2(DT,NUMBER,TYP,DURATION,UNITS,RATE,COST) Values('" + ds.Tables[0].Rows[i]["DATETIME"].ToString() + "','" + ds.Tables[0].Rows[i]["NUMBER"].ToString() + "','" + ds.Tables[0].Rows[i]["TYPE"].ToString() + "','" + ds.Tables[0].Rows[i]["DURATION"].ToString() + "','" + ds.Tables[0].Rows[i]["UNITS"].ToString() + "','" + ds.Tables[0].Rows[i]["RATE "].ToString() + "','" + ds.Tables[0].Rows[i]["COST"].ToString() + "')";
+                    }
+                    else
+                         query = " Insert into spExe2(DT,NUMBER,DURATION,UNITS,RATE,COST) Values('" + ds.Tables[0].Rows[i]["DATETIME"].ToString() + "','" + ds.Tables[0].Rows[i]["NUMBER"].ToString() + "','" + ds.Tables[0].Rows[i]["DURATION"].ToString() + "','" + ds.Tables[0].Rows[i]["UNITS"].ToString() + "','" + ds.Tables[0].Rows[i]["RATE"].ToString() + "','" + ds.Tables[0].Rows[i]["COST"].ToString() + "')";
+
+                    con.Open();
+                    SqlCommand cmd = new SqlCommand(query, con);
+                    cmd.ExecuteNonQuery();
+                    con.Close();
+
+                }
+                if (ds.Tables[0].Rows.Count > 0)
+                {
+                    MessageBox.Show("Excel Upload successfully..", "Inventory information");
+                    
+                }
+                else
+                    MessageBox.Show("Excel file format not exist..", "Inventory information");
+                ////////////////////////////////////////////////////////////
+                ////using (var con = new SqlConnection("data source=ADMINMAYANK;initial catalog=inventory_MVC; user id=sa;password=1234;"))            
+
+                ////using (var adapter = new SqlDataAdapter("SELECT * FROM spExe2", con))
+                ////using (new SqlCommandBuilder(adapter))
+                ////{
+                ////    //22
+                ////    // Fill the DataAdapter with the values in the DataTable.
+                ////    //
+                ////    adapter.Fill(table);
+                ////    //
+                //////    // Open the connection to the SQL database.
+                ////    //
+                ////    con.Open();
+                ////    //
+                ////    // Insert the data table into the SQL database.
+                ////    //
+                ////    adapter.Update(table);
+                //  }
+
+             
+                this.Close();
+            }
+            catch
+            {
+
+                MessageBox.Show("Excel file format not exist..", "Inventory information");
+            }
+                }
+
+
+
+        public void excelfileDElett()
+        {
+
+            string query = "SELECT PROFILE_NAME  FROM PROFILE_TABLE";
+                con.Open();
+                using (SqlCommand cmd1 = new SqlCommand(query, con))
+            using(SqlDataAdapter DA = new SqlDataAdapter(cmd1))
+                {
+               System.Data. DataTable DTAB = new System.Data.DataTable();
+                DA.Fill(DTAB);
+                comboBox1.DataSource = DTAB;
+                comboBox1.DisplayMember = "PROFILE_NAME";
+                comboBox1.ValueMember = "PROFILE_NAME";
+                //cmbCompName.DataBind();
+                comboBox1.Enabled = true;
+                }
+               
+                con.Close();
+
+
+
+            
+     
+
+        
+            
+        }
+
+        public void deletdata()
+        {
+            string query = "delete from spexe2";
+        
+            using (SqlCommand cmd1 = new SqlCommand(query, con))           
+            {
+                con.Open();
+                cmd1.ExecuteNonQuery();
+            }
+
+            con.Close();
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btncancel_Click(object sender, EventArgs e)
+        {
+            excel_uploadfile();
+           // this.Close();
+        }
+
+        public void profiledata()
+        {
+            string query = "SELECT a,b,c,d,e,f,g,h  FROM PROFILE_TABLE where profile_name = '" + comboBox1.Text +"'";
+            con.Open();
+            using (SqlCommand cmd1 = new SqlCommand(query, con))
+            using (SqlDataAdapter DA = new SqlDataAdapter(cmd1))
+            {
+               System.Data. DataTable DTAB = new System.Data.DataTable();
+                DA.Fill(DTAB);
+                dataGridView1.DataSource = DTAB;
+            }
+
+            con.Close();
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            profiledata();
+            dataGridView1.Columns[7].Visible = false;
+        }
+
+
+        public void excel_uploadfile()
+        {
+            string error = "";
+            string fname = "";
+
+            OpenFileDialog op = new OpenFileDialog();
+            op.Filter = "Excel Sheet(*.xlsx)|*.xlsx|All Files(*.*)|*.*";
+            string file_name = "";
+            if (op.ShowDialog() == DialogResult.OK)
+            {
+                file_name = op.FileName;
+            }
+            else
+            {
+                MessageBox.Show("Plz. selecet Excel file");
+                return;
+            }
+
+            //string fname = Server.MapPath("App_Data//excel//" + filename).Replace("Bill","");
+            //string[] ab = fname.Split('\\');
+            //string mainfile = ab[0] +"\"+ ab[1];
+            ArrayList alst = new ArrayList();
+
+            Microsoft.Office.Interop.Excel.Application xlsApp = null;
+            try
+            {
+                xlsApp = new Microsoft.Office.Interop.Excel.Application();
+            }
+            catch (Exception ex)
+            {
+
+                error = ex.Message;
+            }
+
+            if (xlsApp == null)
+            {
+                error = "EXCEL could not be started. Check that your office installation and project references are correct.";
+                //  Console.WriteLine("EXCEL could not be started. Check that your office installation and project references are correct.");
+            }
+                Workbook wb = null;
+                try
+                {
+                    wb = xlsApp.Workbooks.Open(file_name,
+                            0, true, 5, "", "", true, XlPlatform.xlWindows, "\t", false, false, 0, true);
+                }
+
+                catch (Exception ex)
+                {
+                    //  throw  ex.InnerException;
+                    error = "2 error msg ";
+                }
+
+                System.Data.DataTable dtab = new System.Data.DataTable();
+                dtab.Columns.Add("DT" , typeof(string));
+                dtab.Columns.Add("NUMBER", typeof(string));
+                dtab.Columns.Add("TYPE", typeof(string));
+                dtab.Columns.Add("DURATION", typeof(string));
+                dtab.Columns.Add("UNITS", typeof(string));
+                dtab.Columns.Add("RATE", typeof(string));
+                dtab.Columns.Add("COST", typeof(string));
+                Sheets sheets = wb.Worksheets;
+                Worksheet ws = (Worksheet)sheets.get_Item(1);
+                int i1 = ws.Rows.Count;
+
+                Range UsedRange = ws.UsedRange;
+                int lastUsedRow = UsedRange.Row + UsedRange.Rows.Count - 1;
+
+                string[] strArray = null;
+
+                for (int i = 1; i <= lastUsedRow; i++)
+                {
+                     strArray = null;
+                    Range firstColumn = ws.UsedRange.Rows[i];
+                    System.Array myvalues = (System.Array)firstColumn.Cells.Value;
+                    strArray = myvalues.OfType<object>().Select(o => o.ToString()).ToArray();
+                    alst.Add(strArray);
+                }
+                ArrayList myArrayList = new ArrayList();
+                int it = 0;
+          
+                    foreach (string[] item in alst)
+                    {
+                    
+                        if (it == 0)
+                        {
+                            if (item.Length == 7)
+                            {
+                                it = 1;
+                            }
+                            else if(item.Length == 6)
+                            {
+                                it = 2;
+                            }
+                        }
+                            if (it == 1)
+                            {
+                                List<string> lst = new List<string>();
+                                DataRow dr = dtab.NewRow();
+                                try
+                                {
+                                    if (item[0].ToString() == "TOTAL")
+                                    {
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        dr["DT"] = item[0].ToString();
+                                        dr["NUMBER"] = item[1].ToString();
+                                        dr["TYPE"] = item[2].ToString();
+                                        dr["DURATION"] = item[3].ToString();
+                                        //try
+                                        //{
+                                        //    var timeSpan = TimeSpan.FromDays(Convert.ToDouble(item[3]));
+                                        //    int hh = timeSpan.Hours;
+                                        //    int mm = timeSpan.Minutes;
+                                        //    int ss = timeSpan.Seconds;
+                                        //    string dur = string.Format("{0} :{1} :{2}", hh, mm, ss);
+                                        //    dr["DURATION"] = dur;
+                                        //}
+                                        //catch
+                                        //{
+
+                                        //    dr["DURATION"] = item[3];
+                                        //}
+
+
+                                        dr["UNITS"] = item[4].ToString();
+                                        dr["RATE"] = item[5].ToString();
+                                        dr["COST"] = item[6].ToString();
+                                    }
+
+
+
+                                    //lst.Add(item[0]);
+                                    //lst.Add(item[1]);
+                                    //lst.Add(item[2]);
+                                    //var timeSpan = TimeSpan.FromDays(Convert.ToDouble(item[3]));
+                                    //int hh = timeSpan.Hours;
+                                    //int mm = timeSpan.Minutes;
+                                    //int ss = timeSpan.Seconds;
+                                    //string dur = string.Format("{0} :{1} :{2}", hh, mm, ss);
+                                    //lst.Add(dur);
+                                    //lst.Add(item[4]);
+                                    //lst.Add(item[5]);
+                                    //lst.Add(item[6]);
+
+                                }
+                                catch { }
+                                // myArrayList.Add(lst);
+                                dtab.Rows.Add(dr);
+                            }
+                            else if (it == 2)
+                            {
+                               
+                                //System.Data.DataRow drow = dt.NewRow();
+                                List<string> lst = new List<string>();
+                                DataRow dr = dtab.NewRow();
+                                try
+                                {
+                                    if (item[0].ToString() == "TOTAL")
+                                    {
+                                        continue;
+                                    }
+                                    else
+                                    {
+
+                                        dr["DT"] = item[0].ToString();
+                                        dr["NUMBER"] = item[1].ToString();
+                                        dr["TYPE"] = "";
+                                        dr["DURATION"] = item[2].ToString();
+                                        //try
+                                        //{
+                                        //    var timeSpan = TimeSpan.FromDays(Convert.ToDouble(item[2]));
+                                        //    int hh = timeSpan.Hours;
+                                        //    int mm = timeSpan.Minutes;
+                                        //    int ss = timeSpan.Seconds;
+                                        //    string dur = string.Format("{0} :{1} :{2}", hh, mm, ss);
+                                        //    dr["DURATION"] = dur;
+                                        //}
+                                        //catch
+                                        //{
+
+                                        //    dr["DURATION"] = item[2];
+                                        // }
+
+
+                                        dr["UNITS"] = item[3].ToString();
+                                        dr["RATE"] = item[4].ToString();
+                                        dr["COST"] = item[5].ToString();
+
+
+
+                                        //lst.Add(item[0]);
+                                        //lst.Add(item[1]);
+                                        //lst.Add(item[2]);
+                                        //var timeSpan = TimeSpan.FromDays(Convert.ToDouble(item[3]));
+                                        //int hh = timeSpan.Hours;
+                                        //int mm = timeSpan.Minutes;
+                                        //int ss = timeSpan.Seconds;
+                                        //string dur = string.Format("{0} :{1} :{2}", hh, mm, ss);
+                                        //lst.Add(dur);
+                                        //lst.Add(item[4]);
+                                        //lst.Add(item[5]);
+                                        //lst.Add(item[6]);
+                                    }
+
+                                }
+                                catch { }
+                                // myArrayList.Add(lst);
+                                dtab.Rows.Add(dr);
+                            }
+                        
+                }
+
+
+                using (SqlBulkCopy bulkCopy = new SqlBulkCopy(con))
+                {
+                    //bulkCopy.DestinationTableName = "Employee";
+                    con.Open();
+                    bulkCopy.DestinationTableName = "spExe2";
+
+                    //You can mannualy set the column mapping by the following way.
+                    //bulkCopy.ColumnMappings.Add("Employee ID", "Employee Code");
+                    bulkCopy.WriteToServer(dtab);
+                }
+
+
+                MessageBox.Show(myArrayList.Count.ToString());
+
+           
+
+        }
+
+
+
+    }
+}using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using System.Data.SqlClient;
+using System.Data.OleDb;
+using System.Xml;
+using System.Collections;
+using Microsoft.Office.Interop.Excel;
+
+ 
+
+
+namespace Excel_Win
+{
+    public partial class Form1 : Form
+    {
+
+        SqlConnection con = new SqlConnection("data source=103.21.58.192;initial catalog=inventory_MVC; user id=sgmayank;password=F@$tf0warD;");
+
+        
+        public Form1()
+        {
+            InitializeComponent();
+            excelfileDElett();
+            
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            deletdata();
+
+            excelfile();
+
+
+        }
+
+       
+
+        public void excelfile(string fname = "")
+        {
+            try
+            {
+                DataSet ds = new DataSet();
+                OpenFileDialog op = new OpenFileDialog();
+                op.Filter = "Excel Sheet(*.xlsx)|*.xlsx|All Files(*.*)|*.*";
+                string file_name = "";
+                if (op.ShowDialog() == DialogResult.OK)
+                {
+                    file_name = op.FileName;
+                }
+                else
+                {
+                    MessageBox.Show("Plz. selecet Excel file");
+                    return;
+                }
+
+                string excelConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + file_name + ";Extended Properties=\"Excel 12.0;HDR=Yes;IMEX=2\"";
+
+                using (OleDbConnection excelConnection = new OleDbConnection(excelConnectionString))
+                {
+
+                    excelConnection.Open();
+                    System.Data.DataTable dt = new System.Data.DataTable();
+
+                    dt = excelConnection.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
+                    if (dt == null)
+                    {
+                        return;
+                    }
+
+                    String[] excelSheets = new String[dt.Rows.Count];
+                    int t = 0;
+                    //excel data saves in temp file here.
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        excelSheets[t] = row["TABLE_NAME"].ToString();
+                        t++;
+                    }
+                    OleDbConnection excelConnection1 = new OleDbConnection(excelConnectionString);
+
+
+                //  string query = string.Format("Select NUMBER ,TYPE ,DURATION ,UNITS,RATE  AS RATE , COST   from [{0}] ", excelSheets[0]);
+                    string query = string.Format("Select *   from [{0}] ", excelSheets[0]);
+                    using (OleDbDataAdapter dataAdapter = new OleDbDataAdapter(query, excelConnection1))
+                    {
+                        dataAdapter.Fill(ds);
+                    }
+                }
+                System.Data.DataTable table = new System.Data.DataTable();
+                table = ds.Tables[0];
+                ////using (var con = new SqlConnection("data source=103.21.58.192;initial catalog=inventory_MVC; user id=sgmayank;password=F@$tf0warD;")) 
+                for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+                {
+                    //  string conn = ConfigurationManager.ConnectionStrings["SqlCon"].ConnectionString;
+                    SqlConnection con = new SqlConnection("data source=103.21.58.192;initial catalog=inventory_MVC; user id=sgmayank;password=F@$tf0warD;");
+                    string query = "";
+                    if (ds.Tables[0].Columns.Count == 7)
+                    {
+
+                         query = "  Insert into spExe2(DT,NUMBER,TYP,DURATION,UNITS,RATE,COST) Values('" + ds.Tables[0].Rows[i]["DATETIME"].ToString() + "','" + ds.Tables[0].Rows[i]["NUMBER"].ToString() + "','" + ds.Tables[0].Rows[i]["TYPE"].ToString() + "','" + ds.Tables[0].Rows[i]["DURATION"].ToString() + "','" + ds.Tables[0].Rows[i]["UNITS"].ToString() + "','" + ds.Tables[0].Rows[i]["RATE "].ToString() + "','" + ds.Tables[0].Rows[i]["COST"].ToString() + "')";
+                    }
+                    else
+                         query = " Insert into spExe2(DT,NUMBER,DURATION,UNITS,RATE,COST) Values('" + ds.Tables[0].Rows[i]["DATETIME"].ToString() + "','" + ds.Tables[0].Rows[i]["NUMBER"].ToString() + "','" + ds.Tables[0].Rows[i]["DURATION"].ToString() + "','" + ds.Tables[0].Rows[i]["UNITS"].ToString() + "','" + ds.Tables[0].Rows[i]["RATE"].ToString() + "','" + ds.Tables[0].Rows[i]["COST"].ToString() + "')";
+
+                    con.Open();
+                    SqlCommand cmd = new SqlCommand(query, con);
+                    cmd.ExecuteNonQuery();
+                    con.Close();
+
+                }
+                if (ds.Tables[0].Rows.Count > 0)
+                {
+                    MessageBox.Show("Excel Upload successfully..", "Inventory information");
+                    
+                }
+                else
+                    MessageBox.Show("Excel file format not exist..", "Inventory information");
+                ////////////////////////////////////////////////////////////
+                ////using (var con = new SqlConnection("data source=ADMINMAYANK;initial catalog=inventory_MVC; user id=sa;password=1234;"))            
+
+                ////using (var adapter = new SqlDataAdapter("SELECT * FROM spExe2", con))
+                ////using (new SqlCommandBuilder(adapter))
+                ////{
+                ////    //22
+                ////    // Fill the DataAdapter with the values in the DataTable.
+                ////    //
+                ////    adapter.Fill(table);
+                ////    //
+                //////    // Open the connection to the SQL database.
+                ////    //
+                ////    con.Open();
+                ////    //
+                ////    // Insert the data table into the SQL database.
+                ////    //
+                ////    adapter.Update(table);
+                //  }
+
+             
+                this.Close();
+            }
+            catch
+            {
+
+                MessageBox.Show("Excel file format not exist..", "Inventory information");
+            }
+                }
+
+
+
+        public void excelfileDElett()
+        {
+
+            string query = "SELECT PROFILE_NAME  FROM PROFILE_TABLE";
+                con.Open();
+                using (SqlCommand cmd1 = new SqlCommand(query, con))
+            using(SqlDataAdapter DA = new SqlDataAdapter(cmd1))
+                {
+               System.Data. DataTable DTAB = new System.Data.DataTable();
+                DA.Fill(DTAB);
+                comboBox1.DataSource = DTAB;
+                comboBox1.DisplayMember = "PROFILE_NAME";
+                comboBox1.ValueMember = "PROFILE_NAME";
+                //cmbCompName.DataBind();
+                comboBox1.Enabled = true;
+                }
+               
+                con.Close();
+
+
+
+            
+     
+
+        
+            
+        }
+
+        public void deletdata()
+        {
+            string query = "delete from spexe2";
+        
+            using (SqlCommand cmd1 = new SqlCommand(query, con))           
+            {
+                con.Open();
+                cmd1.ExecuteNonQuery();
+            }
+
+            con.Close();
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btncancel_Click(object sender, EventArgs e)
+        {
+            excel_uploadfile();
+           // this.Close();
+        }
+
+        public void profiledata()
+        {
+            string query = "SELECT a,b,c,d,e,f,g,h  FROM PROFILE_TABLE where profile_name = '" + comboBox1.Text +"'";
+            con.Open();
+            using (SqlCommand cmd1 = new SqlCommand(query, con))
+            using (SqlDataAdapter DA = new SqlDataAdapter(cmd1))
+            {
+               System.Data. DataTable DTAB = new System.Data.DataTable();
+                DA.Fill(DTAB);
+                dataGridView1.DataSource = DTAB;
+            }
+
+            con.Close();
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            profiledata();
+            dataGridView1.Columns[7].Visible = false;
+        }
+
+
+        public void excel_uploadfile()
+        {
+            string error = "";
+            string fname = "";
+
+            OpenFileDialog op = new OpenFileDialog();
+            op.Filter = "Excel Sheet(*.xlsx)|*.xlsx|All Files(*.*)|*.*";
+            string file_name = "";
+            if (op.ShowDialog() == DialogResult.OK)
+            {
+                file_name = op.FileName;
+            }
+            else
+            {
+                MessageBox.Show("Plz. selecet Excel file");
+                return;
+            }
+
+            //string fname = Server.MapPath("App_Data//excel//" + filename).Replace("Bill","");
+            //string[] ab = fname.Split('\\');
+            //string mainfile = ab[0] +"\"+ ab[1];
+            ArrayList alst = new ArrayList();
+
+            Microsoft.Office.Interop.Excel.Application xlsApp = null;
+            try
+            {
+                xlsApp = new Microsoft.Office.Interop.Excel.Application();
+            }
+            catch (Exception ex)
+            {
+
+                error = ex.Message;
+            }
+
+            if (xlsApp == null)
+            {
+                error = "EXCEL could not be started. Check that your office installation and project references are correct.";
+                //  Console.WriteLine("EXCEL could not be started. Check that your office installation and project references are correct.");
+            }
+                Workbook wb = null;
+                try
+                {
+                    wb = xlsApp.Workbooks.Open(file_name,
+                            0, true, 5, "", "", true, XlPlatform.xlWindows, "\t", false, false, 0, true);
+                }
+
+                catch (Exception ex)
+                {
+                    //  throw  ex.InnerException;
+                    error = "2 error msg ";
+                }
+
+                System.Data.DataTable dtab = new System.Data.DataTable();
+                dtab.Columns.Add("DT" , typeof(string));
+                dtab.Columns.Add("NUMBER", typeof(string));
+                dtab.Columns.Add("TYPE", typeof(string));
+                dtab.Columns.Add("DURATION", typeof(string));
+                dtab.Columns.Add("UNITS", typeof(string));
+                dtab.Columns.Add("RATE", typeof(string));
+                dtab.Columns.Add("COST", typeof(string));
+                Sheets sheets = wb.Worksheets;
+                Worksheet ws = (Worksheet)sheets.get_Item(1);
+                int i1 = ws.Rows.Count;
+
+                Range UsedRange = ws.UsedRange;
+                int lastUsedRow = UsedRange.Row + UsedRange.Rows.Count - 1;
+
+                string[] strArray = null;
+
+                for (int i = 1; i <= lastUsedRow; i++)
+                {
+                     strArray = null;
+                    Range firstColumn = ws.UsedRange.Rows[i];
+                    System.Array myvalues = (System.Array)firstColumn.Cells.Value;
+                    strArray = myvalues.OfType<object>().Select(o => o.ToString()).ToArray();
+                    alst.Add(strArray);
+                }
+                ArrayList myArrayList = new ArrayList();
+                int it = 0;
+          
+                    foreach (string[] item in alst)
+                    {
+                    
+                        if (it == 0)
+                        {
+                            if (item.Length == 7)
+                            {
+                                it = 1;
+                            }
+                            else if(item.Length == 6)
+                            {
+                                it = 2;
+                            }
+                        }
+                            if (it == 1)
+                            {
+                                List<string> lst = new List<string>();
+                                DataRow dr = dtab.NewRow();
+                                try
+                                {
+                                    if (item[0].ToString() == "TOTAL")
+                                    {
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        dr["DT"] = item[0].ToString();
+                                        dr["NUMBER"] = item[1].ToString();
+                                        dr["TYPE"] = item[2].ToString();
+                                        dr["DURATION"] = item[3].ToString();
+                                        //try
+                                        //{
+                                        //    var timeSpan = TimeSpan.FromDays(Convert.ToDouble(item[3]));
+                                        //    int hh = timeSpan.Hours;
+                                        //    int mm = timeSpan.Minutes;
+                                        //    int ss = timeSpan.Seconds;
+                                        //    string dur = string.Format("{0} :{1} :{2}", hh, mm, ss);
+                                        //    dr["DURATION"] = dur;
+                                        //}
+                                        //catch
+                                        //{
+
+                                        //    dr["DURATION"] = item[3];
+                                        //}
+
+
+                                        dr["UNITS"] = item[4].ToString();
+                                        dr["RATE"] = item[5].ToString();
+                                        dr["COST"] = item[6].ToString();
+                                    }
+
+
+
+                                    //lst.Add(item[0]);
+                                    //lst.Add(item[1]);
+                                    //lst.Add(item[2]);
+                                    //var timeSpan = TimeSpan.FromDays(Convert.ToDouble(item[3]));
+                                    //int hh = timeSpan.Hours;
+                                    //int mm = timeSpan.Minutes;
+                                    //int ss = timeSpan.Seconds;
+                                    //string dur = string.Format("{0} :{1} :{2}", hh, mm, ss);
+                                    //lst.Add(dur);
+                                    //lst.Add(item[4]);
+                                    //lst.Add(item[5]);
+                                    //lst.Add(item[6]);
+
+                                }
+                                catch { }
+                                // myArrayList.Add(lst);
+                                dtab.Rows.Add(dr);
+                            }
+                            else if (it == 2)
+                            {
+                               
+                                //System.Data.DataRow drow = dt.NewRow();
+                                List<string> lst = new List<string>();
+                                DataRow dr = dtab.NewRow();
+                                try
+                                {
+                                    if (item[0].ToString() == "TOTAL")
+                                    {
+                                        continue;
+                                    }
+                                    else
+                                    {
+
+                                        dr["DT"] = item[0].ToString();
+                                        dr["NUMBER"] = item[1].ToString();
+                                        dr["TYPE"] = "";
+                                        dr["DURATION"] = item[2].ToString();
+                                        //try
+                                        //{
+                                        //    var timeSpan = TimeSpan.FromDays(Convert.ToDouble(item[2]));
+                                        //    int hh = timeSpan.Hours;
+                                        //    int mm = timeSpan.Minutes;
+                                        //    int ss = timeSpan.Seconds;
+                                        //    string dur = string.Format("{0} :{1} :{2}", hh, mm, ss);
+                                        //    dr["DURATION"] = dur;
+                                        //}
+                                        //catch
+                                        //{
+
+                                        //    dr["DURATION"] = item[2];
+                                        // }
+
+
+                                        dr["UNITS"] = item[3].ToString();
+                                        dr["RATE"] = item[4].ToString();
+                                        dr["COST"] = item[5].ToString();
+
+
+
+                                        //lst.Add(item[0]);
+                                        //lst.Add(item[1]);
+                                        //lst.Add(item[2]);
+                                        //var timeSpan = TimeSpan.FromDays(Convert.ToDouble(item[3]));
+                                        //int hh = timeSpan.Hours;
+                                        //int mm = timeSpan.Minutes;
+                                        //int ss = timeSpan.Seconds;
+                                        //string dur = string.Format("{0} :{1} :{2}", hh, mm, ss);
+                                        //lst.Add(dur);
+                                        //lst.Add(item[4]);
+                                        //lst.Add(item[5]);
+                                        //lst.Add(item[6]);
+                                    }
+
+                                }
+                                catch { }
+                                // myArrayList.Add(lst);
+                                dtab.Rows.Add(dr);
+                            }
+                        
+                }
+
+
+                using (SqlBulkCopy bulkCopy = new SqlBulkCopy(con))
+                {
+                    //bulkCopy.DestinationTableName = "Employee";
+                    con.Open();
+                    bulkCopy.DestinationTableName = "spExe2";
+
+                    //You can mannualy set the column mapping by the following way.
+                    //bulkCopy.ColumnMappings.Add("Employee ID", "Employee Code");
+                    bulkCopy.WriteToServer(dtab);
+                }
+
+
+                MessageBox.Show(myArrayList.Count.ToString());
+
+           
+
+        }
+
+
+
+    }
+}

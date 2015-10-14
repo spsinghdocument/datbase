@@ -1,0 +1,14 @@
+SqlConnection mycon = new SqlConnection("Data Source=.\\SQLEXPRESS;AttachDbFilename=|DataDirectory|\\saurabh.mdf;Integrated Security=True;User Instance=True");
+
+        mycon.Open();
+
+        SqlCommand command = new SqlCommand("SELECT [FIRSTNAME], [MOBILENO],[ROLLNO],[DATE] FROM [sp]", mycon);
+        SqlDataAdapter da = new SqlDataAdapter(command);
+        DataSet ds = new DataSet();
+        da.Fill(ds);
+
+        GridView1.DataSource = ds;
+
+        GridView1.DataBind();
+
+        mycon.Close();

@@ -1,0 +1,47 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
+using System.Data;
+
+namespace WpfApplication1
+{
+    /// <summary>
+    /// Interaction logic for Window2.xaml
+    /// </summary>
+    public partial class Window2 : Window
+    {
+        DataTable dt;
+        public Window2()
+        {
+            InitializeComponent();
+            dt = new DataTable();
+            dt.Columns.Add("A", typeof(string));
+            dt.Columns.Add("B", typeof(string));
+            dt.Columns.Add("ADD", typeof(decimal));
+        }
+
+        private void button1_Click(object sender, RoutedEventArgs e)
+        {
+            DataRow dr = dt.NewRow();
+            dr["A"] = textBox1.Text;
+            dr["B"] = textBox2.Text;
+            dr["ADD"] = ((Convert.ToDouble(textBox1.Text)) + (Convert.ToDouble(textBox2.Text)));
+            dt.Rows.Add(dr);
+            dataGrid1.ItemsSource = null;
+            dataGrid1.ItemsSource = dt.DefaultView;
+            object b = dt.Compute("SUM(ADD)", "");
+            //dataGrid1.RowValidationRules.Add(textBox1.Text,textBox2.ta
+               // dataGridView1.Rows.Add(textBox1.Text, textBox2.Text, ((Convert.ToDouble(textBox1.Text)) + (Convert.ToDouble(textBox1.Text))).ToString());
+            textBox3.Text = b.ToString();
+        }
+    }
+}

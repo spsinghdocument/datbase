@@ -1,0 +1,72 @@
+Bind("Image", "~/SlideImages/{0}")
+......................................................................................
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Data.SqlClient;
+using System.Data;
+using System.IO;
+
+namespace WebApplication1
+{
+    public partial class WebForm1 : System.Web.UI.Page
+    {
+        static int i = 1;
+        SqlConnection con = new SqlConnection("Data Source=.\\SQLEXPRESS;AttachDbFilename=|DataDirectory|\\Database1.mdf;Integrated Security=True;User Instance=True");
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            if (!IsPostBack)
+            {
+                BindDataList();
+            }
+        }
+        protected void BindDataList()
+        {
+            con.Open();
+
+            SqlCommand command = new SqlCommand("SELECT Image,ProductName from Table1", con);
+            SqlDataAdapter da = new SqlDataAdapter(command);
+            DataTable dt = new DataTable();
+            da.Fill(dt);
+            dlImages.DataSource = dt;
+            dlImages.DataBind();
+            con.Close();
+
+        }
+
+        protected void Button1_Click(object sender, EventArgs e)
+        {
+            string filename = Path.GetFileName(FileUpload1.PostedFile.FileName);
+            //Save images into SlideImages folder
+            FileUpload1.SaveAs(Server.MapPath("SlideImages/" + filename));
+
+            con.Open();
+
+            SqlCommand cmd = new SqlCommand("Insert into Table1  values (@ID,@Image,@ProductName)", con);
+            cmd.Parameters.AddWithValue("@ID",i);
+
+            cmd.Parameters.AddWithValue("@ProductName", TextBox1.Text);
+            cmd.Parameters.AddWithValue("@Image", filename);
+            cmd.ExecuteNonQuery();
+            con.Close();
+            TextBox1.Text = string.Empty;
+            BindDataList();
+            i++;
+
+                    }
+
+        protected void SqlDataSource1_Selecting(object sender, SqlDataSourceSelectingEventArgs e)
+        {
+
+        }
+
+        protected void dlImages_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+    }
+}

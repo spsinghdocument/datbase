@@ -1,0 +1,8 @@
+imageid      uniqueidentifier        primarykey(Row GUID Space)
+firstname    nvarchar(MAX)
+image        image
+mobileno     int
+image_type   varchar(50)
+image_size    bigint
+img_id        int
+  

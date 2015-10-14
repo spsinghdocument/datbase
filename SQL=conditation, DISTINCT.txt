@@ -1,0 +1,6 @@
+select DISTINCT 
+  
+ratio = case when (((spl_data.NetProfitLoss+00-mastersheet.ID_CHG-spl_data.Interest)*45)/100)<0 then 0 
+when (((spl_data.NetProfitLoss+00-mastersheet.ID_CHG-spl_data.Interest)*45)/100)>0 then (((spl_data.NetProfitLoss+00-mastersheet.ID_CHG-spl_data.Interest)*45)/100)
+end  
+ from mastersheet inner JOIN  spl_data on mastersheet.name=spl_data.name

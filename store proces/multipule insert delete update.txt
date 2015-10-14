@@ -1,0 +1,40 @@
+create proc idu
+(
+@f varchar(50),
+@id int,
+@name  varchar(50),
+@lastname varchar(50),
+@mark int,
+@attendanse varchar(50)
+
+)
+as begin
+if(@f='Insert')
+begin
+insert into sp values (@id,@name,@lastname,@mark,@attendanse)
+end
+else if(@f='Delete')
+begin
+delete from sp where id = @id
+end
+else if(@f='Update')
+begin
+update sp set name=@name, lastname=@lastname, mark=@mark, attendanse=@attendanse  where id = @id
+end
+end
+..............................
+ if (con.State == ConnectionState.Closed)
+        {
+            con.Open();
+        
+        }
+        SqlCommand cmd = new SqlCommand("idu", con);
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.AddWithValue("@f","Update");
+        cmd.Parameters.AddWithValue("@id", TextBox8.Text);
+        cmd.Parameters.AddWithValue("@name", TextBox9.Text);
+        cmd.Parameters.AddWithValue("@lastname", TextBox10.Text);
+        cmd.Parameters.AddWithValue("@mark", TextBox11.Text);
+        cmd.Parameters.AddWithValue("@attendanse", TextBox12.Text);
+        cmd.ExecuteNonQuery();
+        con.Close();

@@ -1,0 +1,39 @@
+ if (TextBox1.Text != "" && TextBox2.Text != "" && TextBox3.Text != "" && TextBox4.Text != "" && TextBox5.Text != "" && TextBox6.Text != "" && TextBox7.Text != "" && TextBox8.Text != "" && RadioButtonList1.Text != "" && DropDownList1.SelectedItem.Text != "")
+        {
+
+            float a;
+            a = float.Parse(TextBox2.Text);
+            SqlConnection con = new SqlConnection("Data Source=.\\SQLEXPRESS;AttachDbFilename=|DataDirectory|\\saurabh.mdf;Integrated Security=True;User Instance=True");
+            con.Open();
+            SqlCommand cmd = new SqlCommand("insert into sp values(@fullname,@mobileno,@sex,@course,@address,@dob,@email,@id,@password)", con);
+            cmd.Parameters.AddWithValue("@fullname", TextBox1.Text);
+            cmd.Parameters.AddWithValue("@mobileno", a);
+            cmd.Parameters.AddWithValue("@sex", RadioButtonList1.Text);
+            cmd.Parameters.AddWithValue("@course", DropDownList1.SelectedItem.Text);
+            cmd.Parameters.AddWithValue("@address", TextBox3.Text);
+            cmd.Parameters.AddWithValue("@dob", TextBox4.Text);
+            cmd.Parameters.AddWithValue("@email", TextBox5.Text);
+            cmd.Parameters.AddWithValue("@id", TextBox6.Text);
+            cmd.Parameters.AddWithValue("@password", TextBox8.Text);
+            cmd.ExecuteNonQuery();
+            con.Close();
+            TextBox1.Text = string.Empty;
+            TextBox2.Text = string.Empty;
+            RadioButtonList1.Text = string.Empty;
+            // DropDownList1.SelectedItem.Text = " ..SELECT ONE....";
+            TextBox3.Text = string.Empty;
+            TextBox4.Text = string.Empty;
+            TextBox5.Text = string.Empty;
+            TextBox6.Text = string.Empty;
+            TextBox7.Text = string.Empty;
+            TextBox8.Text = string.Empty;
+            Label1.Visible = true;
+            Label1.Text = "submitted";
+
+        }
+        else
+        {
+            Label1.Visible = true;
+
+            Label1.Text = "<font color ='Green'> plese fill all"+  Button2.AccessKey  + "</font>";
+        }
