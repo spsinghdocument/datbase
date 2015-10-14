@@ -1,0 +1,14 @@
+    SqlConnection con = new SqlConnection("Data Source=ADMINMAYANK;Initial Catalog=Inventory_MVC3;Integrated Security=True");
+            if (con.State == ConnectionState.Closed)
+            {
+                con.Open();
+
+            }
+            
+            SqlCommand cmd = new SqlCommand("select * from dbo.DatesBetween()", con);
+            SqlDataAdapter da = new SqlDataAdapter(cmd);
+            DataSet ds = new DataSet();
+            da.Fill(ds);
+            GridView1.DataSource = ds;
+            GridView1.DataBind();
+            con.Close();

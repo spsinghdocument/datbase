@@ -1,0 +1,49 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Data.SqlClient;
+using System.Data;
+
+namespace WebApplication9
+{
+    public partial class WebForm1 : System.Web.UI.Page
+    {
+        private DataTable dataTable;
+        protected void Page_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        protected void Button1_Click(object sender, EventArgs e)
+        {
+            dataTable = getcolomn();
+            string connString = @"Data Source=ADMINMAYANK;Initial Catalog=arif;Integrated Security=True";
+            string query = "select * from login";
+
+            SqlConnection conn = new SqlConnection(connString);
+            SqlCommand cmd = new SqlCommand(query, conn);
+            conn.Open();
+
+            // create data adapter
+            SqlDataAdapter da = new SqlDataAdapter(cmd);
+            // this will query your database and return the result to your datatable
+            da.Fill(dataTable);
+            GridView1.DataSource = dataTable;
+            GridView1.DataBind();
+            conn.Close();
+            da.Dispose();
+        }
+        DataTable getcolomn()
+        {
+            DataTable dt = new DataTable();
+
+            dt.Columns.Add("Username", typeof(String));
+            dt.Columns.Add("password", typeof(string));
+            dt.Columns.Add("rolnom", typeof(string), "password + Username");
+            return dt;
+        }
+    }
+}

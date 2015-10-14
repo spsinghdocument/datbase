@@ -1,0 +1,31 @@
+CREATE FUNCTION DatesBetween()
+RETURNS @dates TABLE 
+(
+chdatevarchar(50),
+pkchallaninbigint,
+fkchallanoutidbigint,
+ChallanNovarchar (100),
+SimNovarchar (50),
+Country varchar(50) ,
+MobileNovarchar(50),
+ExecNamevarchar(50),
+LoginUsercodevarchar (200),
+branchcodevarchar(100)
+) 
+AS
+BEGIN
+
+insert into @dates(chdate,pkchallanin,fkchallanoutid,ChallanNo,SimNo,Country,MobileNo,ExecName,LoginUsercode,branchcode)
+select c1.chdate,c1.pkchallanin,c1.fkchallanoutid,c1.ChallanNo,c1.SimNo,c1.Country,
+c1.MobileNo,c1.ExecName,c1.LoginUsercode,c1.branchcode
+ from  ChallanIn c1 RETURN;
+   
+   
+END;
+
+drop function DatesBetween
+
+printdbo.DatesBetween()
+
+select * from DatesBetween()
+

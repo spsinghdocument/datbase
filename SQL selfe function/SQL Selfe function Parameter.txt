@@ -1,0 +1,42 @@
+//=================================SQL
+CREATE FUNCTION DatesBetween(@pameter varchar (100))
+RETURNS @dates TABLE 
+(
+chdate varchar(50),
+	pkchallanin bigint,
+	fkchallanoutid bigint,
+	ChallanNo varchar (100),
+	SimNo varchar (50),
+	Country varchar(50) ,
+	MobileNo varchar(50),
+	ExecName varchar(50),
+	LoginUsercode varchar (200),
+	branchcode varchar(100)
+) 
+AS
+BEGIN
+
+insert into @dates(chdate,pkchallanin,fkchallanoutid,ChallanNo,SimNo,Country,MobileNo,ExecName,LoginUsercode,branchcode)
+select c1.chdate,c1.pkchallanin,c1.fkchallanoutid,c1.ChallanNo,c1.SimNo,c1.Country,
+c1.MobileNo,c1.ExecName,c1.LoginUsercode,c1.branchcode
+ from  ChallanIn c1 where Country = @pameter
+ RETURN;
+   
+   
+END;
+//===================================ADO.NET
+
+ SqlConnection con = new SqlConnection("Data Source=ADMINMAYANK;Initial Catalog=Inventory_MVC3;Integrated Security=True");
+            if (con.State == ConnectionState.Closed)
+            {
+                con.Open();
+
+            }
+            
+            SqlCommand cmd = new SqlCommand("select * from dbo.DatesBetween('"+TextBox1.Text +"')", con);
+            SqlDataAdapter da = new SqlDataAdapter(cmd);
+            DataSet ds = new DataSet();
+            da.Fill(ds);
+            GridView1.DataSource = ds;
+            GridView1.DataBind();
+            con.Close();
