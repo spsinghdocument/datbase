@@ -1,0 +1,69 @@
+//=================================SQL  Stoe proc return int---
+
+create proc main_validate
+(
+@firstname varchar(20),
+@lastname varchar(20),
+@midilEname varchar(20),
+@email varchar(20),
+@mobile int,
+@farther varchar(20)
+)
+as
+begin
+if exists(select 1 from nodejs where MOBILENO = @mobile)
+begin
+return 0
+end
+else
+begin
+insert into nodejs (FirstName,LastName,MIDILENAME,EMAIL,MOBILENO,FATHERNAME) values (@firstname,@lastname,@midilEname,@email,@mobile,@farther)
+return 1
+end
+
+end
+
+declare @temp int 
+exec @temp = main_validate 'aa','aa','aa','aa',18,'aa'
+
+print @temp
+--------------------------Web Con
+<configuration>
+  <connectionStrings>
+    <add name="mycon" connectionString="Data Source=ADMINMAYANK;Initial Catalog=Inventory_MVC2;Integrated Security=True" providerName="System.Data.SqlClient"/>
+  </connectionStrings>
+
+--------------------------C#------------------------------
+
+using System.Configuration;
+using System.Data;
+
+
+string c = ConfigurationManager.ConnectionStrings["mycon"].ConnectionString;
+
+          //  Response.Write(c);
+
+            SqlConnection con = new SqlConnection(c);
+            SqlCommand cmd = new SqlCommand("main_validate", con);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@firstname", "sp");
+            cmd.Parameters.AddWithValue("@lastname", "singh");
+            cmd.Parameters.AddWithValue("@midilEname", "pratap");
+            cmd.Parameters.AddWithValue("@email", "sp@ghh.com");
+            cmd.Parameters.AddWithValue("@mobile", 21);
+            cmd.Parameters.AddWithValue("@farther", "jans");
+
+             SqlParameter ptr= cmd.Parameters.Add("@temp", SqlDbType.Int);
+           ptr.Direction = ParameterDirection.ReturnValue;
+           con.Open();
+           cmd.ExecuteNonQuery();
+    int f=     Convert.ToInt32(cmd.Parameters["@temp"].Value);
+    if (f == 0)
+    {
+        Response.Write("not insert");
+    }
+    else
+    {
+        Response.Write("Thx for");
+    
+    }
