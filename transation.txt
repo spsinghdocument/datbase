@@ -1,0 +1,44 @@
+using System;
+using System.Data.SqlClient;
+  
+    class MyApp
+    {
+        SqlConnection con;
+        SqlCommand cmd, cmd1;
+        SqlTransaction tr;
+        public MyApp()
+        {
+            con = new SqlConnection("initial catalog=miit;data source=sandeep-pc;uid=sa;pwd=12345"); 
+      
+        }
+
+        public void Request()
+        {
+            //Both query will execute separately
+
+            try
+            {
+                con.Open();
+                tr = con.BeginTransaction();
+                cmd = new SqlCommand("insert into admission_R values(401,'raman')", con, tr);
+                cmd.ExecuteNonQuery();
+
+                cmd1 = new SqlCommand("insert into admission_R values(301,'rohan')", con, tr);
+                cmd1.ExecuteNonQuery();
+                tr.Commit();
+                Console.WriteLine("Done");  
+                con.Close();
+            }
+            catch (Exception r)
+            {
+                tr.Rollback();
+                Console.WriteLine("Sorry");  
+            }
+        }
+        static void Main(string[] args)
+        {
+            MyApp m = new MyApp();
+            m.Request(); 
+        }
+    }
+
